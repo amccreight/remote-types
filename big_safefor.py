@@ -7,6 +7,7 @@
 import argparse
 from pathlib import Path
 import re
+from utils import loadRemoteTypesFile, niceList
 
 # Hacky updater for the big actor registry files, to add annotations to
 # indicate that the relevant actors are used in web content processes.
@@ -32,22 +33,6 @@ for a in manualWeb:
 for a in manualNonWeb:
     manual[a] = False
 
-
-def loadRemoteTypesFile(fileName):
-    seenWeb = {}
-    with open(fileName, "r") as f:
-        lines = 0
-        for l in f:
-            if lines == 0:
-                # Actors that have been seen in web processes during testing.
-                for a in l.split():
-                    seenWeb[a] = True
-            elif lines == 1:
-                # Actors that haven't been seen in web processes during testing.
-                for a in l.split():
-                    seenWeb[a] = False
-            lines += 1
-    return seenWeb
 
 def fixBigActorDecls(seenWeb, fileName):
     inActorDecls = False
@@ -111,31 +96,6 @@ def fixBigActorDecls(seenWeb, fileName):
         Path(outFileName).unlink()
 
     return [changedActors, alreadyActors, unchangedActors]
-
-def niceList(msg, actors):
-    actors.sort()
-    numActors = 0
-    col = len(msg)
-    print(msg, end="")
-
-    for a in actors:
-        numActors += 1
-        if col + len(a) > 80:
-            print()
-            col = 0
-        if col == 0:
-            before = ""
-        else:
-            before = " "
-        if numActors == len(actors):
-            after = ""
-        else:
-            after = ","
-        toPrint = before + a + after
-        print(toPrint, end="")
-        col += len(toPrint)
-
-    print()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fix large JS actor registrations.")
