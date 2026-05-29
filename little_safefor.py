@@ -16,21 +16,60 @@ import re
 from utils import loadRemoteTypesFile
 
 
-registerRe = re.compile("^\\s*ChromeUtils.register([a-zA-Z]+)Actor\\(\"([^\"]+)\", {$")
+registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\(\"([^\"]+)\", {$")
 
+# XXX Need to make this echo the modified file to a tmp file, move it over.
+
+# XXX Print out a list of actors we modified, saw but didn't modify etc.
 
 def fixLittleActorDecls(seenWeb, fileName):
+    foundAny = False
+
+    currActor = None
+    safeFor = None
+    endCurrActor = None
+    actorAlreadySafe = False
+
     with open(fileName, "r") as fi:
         for l in fi:
             m = registerRe.match(l)
-            if not m:
-                if "ChromeUtils.register" in l:
-                    print("OOPS: " + l[:-1])
+            if m:
+                foundAny = True
+                assert currActor is None
+                assert safeFor is None
+                assert endCurrActor is None
+                actorAlreadySafe = False
+
+                indentWith = m.group(1)
+                safeFor = indentWith + "safeForUntrustedWebProcess: true,\n"
+                endCurrActor = indentWith + "});\n"
+                kind = m.group(2)
+                assert kind == "Window" or kind == "Process"
+                currActor = m.group(3)
+                print("MATCHED: " + currActor)
                 continue
-            kind = m.group(1)
-            assert kind == "Window" or kind == "Process"
-            actor = m.group(2)
-            print("MATCHED: " + actor)
+            if currActor:
+                if l == safeFor:
+                    actorAlreadySafe = True
+                elif l == endCurrActor:
+                    okayForWeb = False
+                    if currActor in seenWeb:
+                        if seenWeb[currActor]:
+                            okayForWeb = True
+                    else:
+                        print(f"Unknown actor: {currActor}")
+                        assert False
+                    if okayForWeb:
+                        if not actorAlreadySafe:
+                            print("==>" + safeFor[:-1])
+                    else:
+                        assert not actorAlreadySafe
+                    currActor = None
+                    safeFor = None
+                    endCurrActor = None
+
+    if not foundAny:
+        print("!!! did not find any in " + fileName)
 
 
 if __name__ == "__main__":
