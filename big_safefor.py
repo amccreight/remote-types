@@ -8,11 +8,8 @@ import argparse
 from pathlib import Path
 import re
 
-# Hacky parser for the big actor registry files.
-# * browser/components/DesktopActorRegistry.sys.mjs
-# * toolkit/modules/ActorManagerParent.sys.mjs
-# * mobile/shared/components/geckoview/GeckoViewStartup.sys.mjs
-
+# Hacky updater for the big actor registry files, to add annotations to
+# indicate that the relevant actors are used in web content processes.
 
 actorDeclRe = re.compile("^  ([^:]+): {$")
 
@@ -58,7 +55,9 @@ def fixBigActorDecls(seenWeb, fileName):
     actorAlreadySafe = False
 
     outFileName = fileName + ".tmp"
-    anyChanged = False
+    changedActors = []
+    alreadyActors = []
+    unchangedActors = []
 
     with open(fileName, "r") as fi, open(outFileName, "w") as fo:
         for l in fi:
@@ -92,22 +91,51 @@ def fixBigActorDecls(seenWeb, fileName):
                 if okayForWeb:
                     if not actorAlreadySafe:
                         fo.write("    safeForUntrustedWebProcess: true,\n")
-                        anyChanged = True
+                        changedActors.append(currActorDecl)
+                    else:
+                        alreadyActors.append(currActorDecl)
                 else:
                     assert not actorAlreadySafe
+                    unchangedActors.append(currActorDecl)
                 currActorDecl = None
                 actorAlreadySafe = False
             elif l == "    safeForUntrustedWebProcess: true,\n":
                 actorAlreadySafe = True
             fo.write(l)
 
-    if anyChanged:
+    if len(changedActors) > 0:
         print(f"Made changes to {fileName}")
         Path(outFileName).rename(fileName)
     else:
         print(f"No changes to {fileName}")
         Path(outFileName).unlink()
 
+    return [changedActors, alreadyActors, unchangedActors]
+
+def niceList(msg, actors):
+    actors.sort()
+    numActors = 0
+    col = len(msg)
+    print(msg, end="")
+
+    for a in actors:
+        numActors += 1
+        if col + len(a) > 80:
+            print()
+            col = 0
+        if col == 0:
+            before = ""
+        else:
+            before = " "
+        if numActors == len(actors):
+            after = ""
+        else:
+            after = ","
+        toPrint = before + a + after
+        print(toPrint, end="")
+        col += len(toPrint)
+
+    print()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fix large JS actor registrations.")
@@ -129,9 +157,19 @@ if __name__ == "__main__":
         "browser/components/DesktopActorRegistry.sys.mjs",
         "toolkit/modules/ActorManagerParent.sys.mjs",
     ]
-
     # TODO: Add mobile/shared/components/geckoview/GeckoViewStartup.sys.mjs
     # Need to do a logging run on Android first.
 
+    changedActors = []
+    alreadyActors = []
+    unchangedActors = []
+
     for f in bigActorDeclFiles:
-        fixBigActorDecls(seenWeb, firefoxDir + f)
+        [l1, l2, l3] = fixBigActorDecls(seenWeb, firefoxDir + f)
+        changedActors += l1
+        alreadyActors += l2
+        unchangedActors += l3
+
+    niceList("Actors that got the annotation added: ", changedActors)
+    niceList("Actors that already had the annotation: ", alreadyActors)
+    niceList("Actors that were seen that shouldn't have the annotation: ", unchangedActors)
