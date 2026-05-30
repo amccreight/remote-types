@@ -13,7 +13,7 @@
 
 import argparse
 import re
-from utils import loadRemoteTypesFile
+from utils import loadRemoteTypesFile, manual
 
 
 registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\(\"([^\"]+)\", {$")
@@ -53,11 +53,14 @@ def fixLittleActorDecls(seenWeb, fileName):
                     actorAlreadySafe = True
                 elif l == endCurrActor:
                     okayForWeb = False
-                    if currActor in seenWeb:
+                    if currActor in manual:
+                        if manual[currActor]:
+                            okayForWeb = True
+                    elif currActor in seenWeb:
                         if seenWeb[currActor]:
                             okayForWeb = True
                     else:
-                        print(f"Unknown actor: {currActor}")
+                        print(f"Unknown actor {currActor} in {fileName}")
                         assert False
                     if okayForWeb:
                         if not actorAlreadySafe:
@@ -78,6 +81,8 @@ if __name__ == "__main__":
                         help="File where first line is actors that have been "
                             "seen in web process during testing, and second "
                             "line is those that haven't")
+    parser.add_argument("file_file_name",
+                        help="File containing a list of files we should look at.")
     parser.add_argument("firefox_dir",
                         help="Root of Firefox source code directory.")
     args = parser.parse_args()
@@ -88,6 +93,15 @@ if __name__ == "__main__":
 
     seenWeb = loadRemoteTypesFile(args.file_name)
 
-    f = firefoxDir + "remote/shared/js-process-actors/WebDriverDocumentInsertedActor.sys.mjs"
-    fixLittleActorDecls(seenWeb, f)
+    files = []
+    with open(args.file_file_name, "r") as fi:
+        for l in fi:
+            assert len(l) > 2
+            files.append(l[:-1])
+
+    for f in files:
+        # XXX Need to run a scan for Android-only actors.
+        if f == "mobile/android/geckoview/src/androidTest/assets/web_extensions/test-support/test-api.js":
+            continue
+        fixLittleActorDecls(seenWeb, firefoxDir + f)
 

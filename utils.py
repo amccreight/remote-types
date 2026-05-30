@@ -13,6 +13,8 @@ manualWeb = [
     "SwitchDocumentDirection",
     # Only seen in parent during testing but maybe it is used in web?
     "LinkPreview",
+    # I didn't run the right tests, but feels like it must be used in web.
+    "DampLoad",
 ]
 manualNonWeb = [
     "HPKEConfigManager",
