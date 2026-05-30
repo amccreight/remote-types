@@ -7,32 +7,12 @@
 import argparse
 from pathlib import Path
 import re
-from utils import loadRemoteTypesFile, niceList
+from utils import loadRemoteTypesFile, niceList, manual
 
 # Hacky updater for the big actor registry files, to add annotations to
 # indicate that the relevant actors are used in web content processes.
 
 actorDeclRe = re.compile("^  ([^:]+): {$")
-
-manual = {}
-manualWeb = [
-    "AISmartBar",
-    "ExtFind",
-    "LayoutDebug",
-    "SpeechDispatcher",
-    "SwitchDocumentDirection",
-    "LinkPreview", # Only seen in parent during testing but surely it is used in web?
-]
-manualNonWeb = [
-    "HPKEConfigManager",
-    "MozCachedOHTTP",
-    "MozNewTabRemoteRendererProtocol",
-]
-for a in manualWeb:
-    manual[a] = True
-for a in manualNonWeb:
-    manual[a] = False
-
 
 def fixBigActorDecls(seenWeb, fileName):
     inActorDecls = False

@@ -4,6 +4,26 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+manual = {}
+manualWeb = [
+    "AISmartBar",
+    "ExtFind",
+    "LayoutDebug",
+    "SpeechDispatcher",
+    "SwitchDocumentDirection",
+    # Only seen in parent during testing but maybe it is used in web?
+    "LinkPreview",
+]
+manualNonWeb = [
+    "HPKEConfigManager",
+    "MozCachedOHTTP",
+    "MozNewTabRemoteRendererProtocol",
+]
+for a in manualWeb:
+    manual[a] = True
+for a in manualNonWeb:
+    manual[a] = False
+
 def loadRemoteTypesFile(fileName):
     seenWeb = {}
     with open(fileName, "r") as f:
