@@ -15,6 +15,12 @@ manualWeb = [
     "LinkPreview",
     # I didn't run the right tests, but feels like it must be used in web.
     "DampLoad",
+    # Used in the test_allowJavascript.js XPCShell test.
+    "AllowJavascript",
+    # Needed for use with staging server.
+    "TPSFxAAutofill",
+    # Used by head_service_worker.js for xpcshell tests.
+    "TestWorkerWatcher",
 ]
 manualNonWeb = [
     "HPKEConfigManager",

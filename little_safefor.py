@@ -16,11 +16,25 @@ import re
 from utils import loadRemoteTypesFile, manual
 
 
-registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\(\"([^\"]+)\", {$")
+registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\((\"[^\"]+\"|[^\"]+), {$")
 
 # XXX Need to make this echo the modified file to a tmp file, move it over.
 
 # XXX Print out a list of actors we modified, saw but didn't modify etc.
+
+# Some actors are registered using variable names instead of literals.
+nameFixup = {
+    ("browser_bug1622420.js", "ACTOR"): "Bug1622420",
+    ("browser_fullscreen_api_fission.js", "actorName"): "FullscreenFrame",
+    ("fxaccounts.sys.mjs", "AUTOFILL_ACTOR_NAME"): "TPSFxAAutofill",
+    ("head_service_worker.js", "JS_ACTOR_NAME"): "TestWorkerWatcher",
+    ("test_allowJavascript.js", "ACTOR"): "AllowJavascript",
+}
+
+nonStringActorFileIgnore = set([
+    # This file uses a variable named "actorName" for different actors.
+    "UserCharacteristicsPageService.sys.mjs",
+])
 
 def fixLittleActorDecls(seenWeb, fileName):
     foundAny = False
@@ -29,6 +43,8 @@ def fixLittleActorDecls(seenWeb, fileName):
     safeFor = None
     endCurrActor = None
     actorAlreadySafe = False
+
+    justTheFile = fileName.split("/")[-1]
 
     with open(fileName, "r") as fi:
         for l in fi:
@@ -46,7 +62,20 @@ def fixLittleActorDecls(seenWeb, fileName):
                 kind = m.group(2)
                 assert kind == "Window" or kind == "Process"
                 currActor = m.group(3)
-                print("MATCHED: " + currActor)
+                if currActor[0] == '"' and currActor[-1] == '"':
+                    currActor = currActor[1:-1]
+                elif (justTheFile, currActor) in nameFixup:
+                    currActor = nameFixup[(justTheFile, currActor)]
+                elif justTheFile in nonStringActorFileIgnore:
+                    print(f"!!! Ignoring unknown non-string actor {currActor} in {justTheFile}")
+                    currActor = None
+                    safeFor = None
+                    endCurrActor = None
+                    continue
+                else:
+                    print(f"Unknown non-string actor {currActor} in {justTheFile}")
+                    assert False
+                print(f"MATCHED: {currActor} in {justTheFile}")
                 continue
             if currActor:
                 if l == safeFor:
