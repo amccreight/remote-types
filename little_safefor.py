@@ -102,6 +102,7 @@ if __name__ == "__main__":
     for f in files:
         # XXX Need to run a scan for Android-only actors.
         if f == "mobile/android/geckoview/src/androidTest/assets/web_extensions/test-support/test-api.js":
+            print("!!! skipping Android-only file test-api.js for now")
             continue
         fixLittleActorDecls(seenWeb, firefoxDir + f)
 
