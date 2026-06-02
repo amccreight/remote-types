@@ -87,11 +87,9 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                 currActor = m.group(3)
                 if currActor[0] == '"' and currActor[-1] == '"':
                     currActor = currActor[1:-1]
-                elif (justTheFile, currActor) in nameFixup:
-                    currActor = nameFixup[(justTheFile, currActor)]
                 else:
-                    print(f"Unknown non-string actor {currActor} in {justTheFile}")
-                    assert False
+                    assert (justTheFile, currActor) in nameFixup, f"Unknown non-string actor {currActor} in {justTheFile}"
+                    currActor = nameFixup[(justTheFile, currActor)]
                 continue
             if currActor:
                 if l == safeFor:
@@ -101,12 +99,10 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                     if currActor in manual:
                         if manual[currActor]:
                             okayForWeb = True
-                    elif currActor in seenWeb:
+                    else:
+                        assert currActor in seenWeb, f"Unknown actor {currActor} in {fileName}"
                         if seenWeb[currActor]:
                             okayForWeb = True
-                    else:
-                        print(f"Unknown actor {currActor} in {fileName}")
-                        assert False
                     if okayForWeb:
                         if actorAlreadySafe:
                             print(f"ALREADY SAFEFOR: {currActor} in {justTheFile}")
@@ -125,11 +121,8 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
     if foundAny:
         return
 
-    if fileName in ignoreFiles:
-        print("IGNORING: " + fileName)
-        return
-
-    print("!!! did not find any in " + fileName)
+    assert fileName in ignoreFiles, f"Did not find any actor registrations in {fileName}"
+    print("IGNORING: " + fileName)
 
 
 if __name__ == "__main__":
