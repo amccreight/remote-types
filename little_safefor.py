@@ -4,6 +4,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+# This script is about fixing up direct calls to ChromeUtils.registerWindowActor
+# and ChromeUtils.registerProcessActor.
+
 # First, create a list of all of the files that call the register actor
 # methods.
 # From the Firefox source directory:
@@ -43,6 +46,16 @@ ignoreFiles = set([
     # These WebIDL files don't actually register actors.
     "dom/chrome-webidl/JSProcessActor.webidl",
     "dom/chrome-webidl/JSWindowActor.webidl",
+    # These test do weird things and have been manually fixed up by the main patch.
+    "dom/ipc/tests/JSProcessActor/browser_registerProcessActor.js",
+    "dom/ipc/tests/JSProcessActor/head.js",
+    "dom/ipc/tests/JSWindowActor/browser_registerWindowActor.js",
+    "dom/ipc/tests/JSWindowActor/head.js",
+    # This does something weird, so fix it manually.
+    "devtools/server/actors/watcher/ParentProcessWatcherRegistry.sys.mjs",
+    # This is the implementation used by mobile/shared/chrome/geckoview/geckoview.js,
+    # which will be analyzed by big_safefor.py.
+    "mobile/shared/modules/geckoview/GeckoViewActorManager.sys.mjs",
 ])
 
 def fixLittleActorDecls(seenWeb, baseFile, fileName):
@@ -144,9 +157,5 @@ if __name__ == "__main__":
             files.append(l[:-1])
 
     for f in files:
-        # XXX Need to run a scan for Android-only actors.
-        if f == "mobile/android/geckoview/src/androidTest/assets/web_extensions/test-support/test-api.js":
-            print("!!! skipping Android-only file test-api.js for now")
-            continue
         fixLittleActorDecls(seenWeb, firefoxDir, f)
 

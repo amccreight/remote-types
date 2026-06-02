@@ -29,6 +29,9 @@ manualWeb = [
     "TPSFxAAutofill",
     # Used by head_service_worker.js for xpcshell tests.
     "TestWorkerWatcher",
+    # Used in Android tests by test-api.js.
+    "TestSupport",
+    "TestSupportProcess",
 ]
 manualNonWeb = [
     "HPKEConfigManager",
