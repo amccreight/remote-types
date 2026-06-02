@@ -92,7 +92,6 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                 else:
                     print(f"Unknown non-string actor {currActor} in {justTheFile}")
                     assert False
-                print(f"MATCHED: {currActor} in {justTheFile}")
                 continue
             if currActor:
                 if l == safeFor:
@@ -109,14 +108,19 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                         print(f"Unknown actor {currActor} in {fileName}")
                         assert False
                     if okayForWeb:
-                        if not actorAlreadySafe:
-                            print("  ==>" + safeFor[:-1])
+                        if actorAlreadySafe:
+                            print(f"ALREADY SAFEFOR: {currActor} in {justTheFile}")
+                        else:
+                            print(f"MATCHED: {currActor} in {justTheFile}: ==>{safeFor[:-1]}")
                     else:
                         assert not actorAlreadySafe
-                        print("  Not web.")
+                        print(f"NOT WEB: {currActor} in {justTheFile}")
                     currActor = None
                     safeFor = None
                     endCurrActor = None
+
+    # We should have found the end of an actor by the end of the file.
+    assert currActor == None
 
     if foundAny:
         return
