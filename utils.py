@@ -21,8 +21,9 @@ manualWeb = [
     "SwitchDocumentDirection",
     # Only seen in parent during testing but maybe it is used in web?
     "LinkPreview",
-    # I didn't run the right tests, but feels like it must be used in web.
+    # These are used in perf tests and I assume are used in web processes.
     "DampLoad",
+    "TalosTabSwitch",
     # Used in the test_allowJavascript.js XPCShell test.
     "AllowJavascript",
     # Needed for use with staging server.
