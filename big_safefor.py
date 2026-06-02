@@ -72,7 +72,7 @@ def fixBigActorDecls(seenWeb, fileName):
         print(f"Made changes to {fileName}")
         Path(outFileName).rename(fileName)
     else:
-        print(f"No changes to {fileName}")
+        print(f"!!! No changes to {fileName}")
         Path(outFileName).unlink()
 
     return [changedActors, alreadyActors, unchangedActors]
@@ -92,17 +92,19 @@ if __name__ == "__main__":
         firefoxDir += "/"
 
     seenWeb = loadRemoteTypesFile(args.file_name)
-
-    changedActors = []
-    alreadyActors = []
-    unchangedActors = []
+    fileResults = {}
 
     for f in bigActorDeclFiles:
-        [l1, l2, l3] = fixBigActorDecls(seenWeb, firefoxDir + f)
-        changedActors += l1
-        alreadyActors += l2
-        unchangedActors += l3
+        justTheFile = f.split("/")[-1]
+        fileResults[justTheFile] = fixBigActorDecls(seenWeb, firefoxDir + f)
 
-    niceList("Actors that got the annotation added: ", changedActors)
-    niceList("Actors that already had the annotation: ", alreadyActors)
-    niceList("Actors that were seen that shouldn't have the annotation: ", unchangedActors)
+    for f in sorted(list(fileResults.keys())):
+        print(f"Changes for file {f}:")
+        changed = fileResults[f][0]
+        already = fileResults[f][1]
+        unchanged = fileResults[f][2]
+        niceList("* Actors that got the annotation added: ", changed)
+        niceList("* Actors that already had the annotation: ", already)
+        niceList("* Actors that were seen that shouldn't have the annotation: ", unchanged)
+        print()
+

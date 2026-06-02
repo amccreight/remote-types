@@ -56,6 +56,9 @@ def loadRemoteTypesFile(fileName):
     return seenWeb
 
 def niceList(msg, actors):
+    if len(actors) == 0:
+        return
+
     actors.sort()
     numActors = 0
     col = len(msg)
