@@ -32,6 +32,10 @@ nameFixup = {
     ("fxaccounts.sys.mjs", "AUTOFILL_ACTOR_NAME"): "TPSFxAAutofill",
     ("head_service_worker.js", "JS_ACTOR_NAME"): "TestWorkerWatcher",
     ("test_allowJavascript.js", "ACTOR"): "AllowJavascript",
+    # This is a bit of a hack because actorName is also used for the actor
+    # UserCharacteristicsCanvasRendering in this file, but they are both
+    # used in web processes, so that's fine.
+    ("UserCharacteristicsPageService.sys.mjs", "actorName"): "UserCharacteristicsWindowInfo",
 }
 
 nonStringActorFileIgnore = set([
