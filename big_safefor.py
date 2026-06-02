@@ -13,6 +13,7 @@ from utils import bigActorDeclFiles, loadRemoteTypesFile, niceList, manual
 # indicate that the relevant actors are used in web content processes.
 
 actorDeclRe = re.compile("^  ([^:]+): {$")
+actorDeclsRe = re.compile("^\\s*(?:let|const) (?:JSPROCESSACTORS|JSWINDOWACTORS) = {$")
 
 def fixBigActorDecls(seenWeb, fileName):
     inActorDecls = False
@@ -27,9 +28,7 @@ def fixBigActorDecls(seenWeb, fileName):
     with open(fileName, "r") as fi, open(outFileName, "w") as fo:
         for l in fi:
             if not inActorDecls:
-                if l == "let JSPROCESSACTORS = {\n":
-                    inActorDecls = True
-                elif l == "let JSWINDOWACTORS = {\n":
+                if actorDeclsRe.match(l):
                     inActorDecls = True
                 fo.write(l)
                 continue
