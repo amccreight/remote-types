@@ -60,6 +60,8 @@ ignoreFiles = set([
     # This is the implementation used by mobile/shared/chrome/geckoview/geckoview.js,
     # which will be analyzed by big_safefor.py.
     "mobile/shared/modules/geckoview/GeckoViewActorManager.sys.mjs",
+    # This is analyzed by big_safefor.py.
+    "toolkit/modules/ActorManagerParent.sys.mjs",
 ])
 
 def fixLittleActorDecls(seenWeb, baseFile, fileName):
@@ -83,7 +85,7 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                 actorAlreadySafe = False
 
                 indentWith = m.group(1)
-                safeFor = indentWith + "safeForUntrustedWebProcess: true,\n"
+                safeFor = indentWith + "  safeForUntrustedWebProcess: true,\n"
                 endCurrActor = indentWith + "});\n"
                 kind = m.group(2)
                 assert kind == "Window" or kind == "Process"
