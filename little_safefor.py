@@ -36,7 +36,16 @@ nonStringActorFileIgnore = set([
     "UserCharacteristicsPageService.sys.mjs",
 ])
 
-def fixLittleActorDecls(seenWeb, fileName):
+ignoreFiles = set([
+    # This file registers ASRouterNewTabMessage (which is non-web-content) via
+    # TRAIN_HOPPING_COMPONENT_CONFIGURATIONS.actors.
+    "browser/extensions/newtab/lib/ExternalComponentsFeed.sys.mjs",
+    # These WebIDL files don't actually register actors.
+    "dom/chrome-webidl/JSProcessActor.webidl",
+    "dom/chrome-webidl/JSWindowActor.webidl",
+])
+
+def fixLittleActorDecls(seenWeb, baseFile, fileName):
     foundAny = False
 
     currActor = None
@@ -46,7 +55,7 @@ def fixLittleActorDecls(seenWeb, fileName):
 
     justTheFile = fileName.split("/")[-1]
 
-    with open(fileName, "r") as fi:
+    with open(baseFile + fileName, "r") as fi:
         for l in fi:
             m = registerRe.match(l)
             if m:
@@ -100,8 +109,14 @@ def fixLittleActorDecls(seenWeb, fileName):
                     safeFor = None
                     endCurrActor = None
 
-    if not foundAny:
-        print("!!! did not find any in " + fileName)
+    if foundAny:
+        return
+
+    if fileName in ignoreFiles:
+        print("IGNORING: " + fileName)
+        return
+
+    print("!!! did not find any in " + fileName)
 
 
 if __name__ == "__main__":
@@ -133,5 +148,5 @@ if __name__ == "__main__":
         if f == "mobile/android/geckoview/src/androidTest/assets/web_extensions/test-support/test-api.js":
             print("!!! skipping Android-only file test-api.js for now")
             continue
-        fixLittleActorDecls(seenWeb, firefoxDir + f)
+        fixLittleActorDecls(seenWeb, firefoxDir, f)
 
