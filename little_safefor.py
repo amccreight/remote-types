@@ -121,9 +121,10 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                         assert False
                     if okayForWeb:
                         if not actorAlreadySafe:
-                            print("==>" + safeFor[:-1])
+                            print("  ==>" + safeFor[:-1])
                     else:
                         assert not actorAlreadySafe
+                        print("  Not web.")
                     currActor = None
                     safeFor = None
                     endCurrActor = None
