@@ -8,6 +8,7 @@
 # Need to do a logging run on Android first.
 bigActorDeclFiles = [
     "browser/components/DesktopActorRegistry.sys.mjs",
+    "browser/extensions/newtab/lib/NewTabActorRegistry.sys.mjs",
     "toolkit/modules/ActorManagerParent.sys.mjs",
 ]
 
