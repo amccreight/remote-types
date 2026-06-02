@@ -7,7 +7,7 @@
 import argparse
 from pathlib import Path
 import re
-from utils import loadRemoteTypesFile, niceList, manual
+from utils import bigActorDeclFiles, loadRemoteTypesFile, niceList, manual
 
 # Hacky updater for the big actor registry files, to add annotations to
 # indicate that the relevant actors are used in web content processes.
@@ -92,13 +92,6 @@ if __name__ == "__main__":
         firefoxDir += "/"
 
     seenWeb = loadRemoteTypesFile(args.file_name)
-
-    bigActorDeclFiles = [
-        "browser/components/DesktopActorRegistry.sys.mjs",
-        "toolkit/modules/ActorManagerParent.sys.mjs",
-    ]
-    # TODO: Add mobile/shared/components/geckoview/GeckoViewStartup.sys.mjs
-    # Need to do a logging run on Android first.
 
     changedActors = []
     alreadyActors = []

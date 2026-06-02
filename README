@@ -1,1 +1,19 @@
 Log analyzer and updater for Firefox remote types.
+
+Example of running `big_safefor.py`:
+
+```
+python3 big_safefor.py seenweb.txt ~/firefox
+```
+
+Example of running `little_safefor.py`:
+
+```
+python3 little_safefor.py seenweb.txt reg_files.txt ~/firefox
+```
+
+`seenweb.txt` is a file where the first line is the list of actors that have been seen in
+web content processes, and the second line is a list of actors that haven't.
+
+`reg_files.txt` is a list of files that contain either `ChromeUtils.registerWindowActor` or
+`ChromeUtils.registerProcessActor`.

@@ -4,6 +4,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+# TODO: Add mobile/shared/components/geckoview/GeckoViewStartup.sys.mjs
+# Need to do a logging run on Android first.
+bigActorDeclFiles = [
+    "browser/components/DesktopActorRegistry.sys.mjs",
+    "toolkit/modules/ActorManagerParent.sys.mjs",
+]
+
 manual = {}
 manualWeb = [
     "AISmartBar",
