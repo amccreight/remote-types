@@ -38,11 +38,6 @@ nameFixup = {
     ("UserCharacteristicsPageService.sys.mjs", "actorName"): "UserCharacteristicsWindowInfo",
 }
 
-nonStringActorFileIgnore = set([
-    # This file uses a variable named "actorName" for different actors.
-    "UserCharacteristicsPageService.sys.mjs",
-])
-
 ignoreFiles = set([
     # This file registers ASRouterNewTabMessage (which is non-web-content) via
     # TRAIN_HOPPING_COMPONENT_CONFIGURATIONS.actors.
@@ -94,12 +89,6 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                     currActor = currActor[1:-1]
                 elif (justTheFile, currActor) in nameFixup:
                     currActor = nameFixup[(justTheFile, currActor)]
-                elif justTheFile in nonStringActorFileIgnore:
-                    print(f"!!! Ignoring unknown non-string actor {currActor} in {justTheFile}")
-                    currActor = None
-                    safeFor = None
-                    endCurrActor = None
-                    continue
                 else:
                     print(f"Unknown non-string actor {currActor} in {justTheFile}")
                     assert False
