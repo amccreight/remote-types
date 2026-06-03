@@ -15,15 +15,9 @@
 # cat /tmp/file1.txt /tmp/file2.txt | sort | uniq > reg_files.txt
 
 import argparse
+from pathlib import Path
 import re
 from utils import loadRemoteTypesFile, manual, niceList
-
-
-registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\((\"[^\"]+\"|[^\"]+), {$")
-
-# XXX Need to make this echo the modified file to a tmp file, move it over.
-
-# XXX Print out a list of actors we modified, saw but didn't modify etc.
 
 # Some actors are registered using variable names instead of literals.
 nameFixup = {
@@ -59,6 +53,8 @@ ignoreFiles = set([
     "toolkit/modules/ActorManagerParent.sys.mjs",
 ])
 
+registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\((\"[^\"]+\"|[^\"]+), {$")
+
 def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
     foundAny = False
 
@@ -67,9 +63,11 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
     endCurrActor = None
     actorAlreadySafe = False
 
+    actualFileName = baseFile + fileName
+    outFileName = actualFileName + ".tmp"
     justTheFile = fileName.split("/")[-1]
 
-    with open(baseFile + fileName, "r") as fi:
+    with open(actualFileName, "r") as fi, open(outFileName, "w") as fo:
         for l in fi:
             m = registerRe.match(l)
             if m:
@@ -90,8 +88,7 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
                 else:
                     assert (justTheFile, currActor) in nameFixup, f"Unknown non-string actor {currActor} in {justTheFile}"
                     currActor = nameFixup[(justTheFile, currActor)]
-                continue
-            if currActor:
+            elif currActor:
                 if l == safeFor:
                     actorAlreadySafe = True
                 elif l == endCurrActor:
@@ -108,19 +105,23 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
                             results["already"].append(currActor)
                         else:
                             results["fixed"].append(currActor)
-                            # TODO: Actually insert safeFor into the file.
+                            fo.write(safeFor)
                     else:
                         assert not actorAlreadySafe
                         results["notWeb"].append(currActor)
                     currActor = None
                     safeFor = None
                     endCurrActor = None
+            fo.write(l)
 
     # We should have found the end of an actor by the end of the file.
     assert currActor == None
 
     if foundAny:
+        Path(outFileName).rename(actualFileName)
         return
+
+    Path(outFileName).unlink()
 
     assert fileName in ignoreFiles, f"Did not find any actor registrations in {fileName}"
     results["ignored"].append(fileName)
