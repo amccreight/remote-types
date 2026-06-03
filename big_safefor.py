@@ -102,8 +102,8 @@ if __name__ == "__main__":
         changed = fileResults[f][0]
         already = fileResults[f][1]
         unchanged = fileResults[f][2]
-        niceList("* Actors that got the annotation added: ", changed)
-        niceList("* Actors that already had the annotation: ", already)
-        niceList("* Actors that were seen that shouldn't have the annotation: ", unchanged)
+        niceList("* Actors that had the annotation added:", changed)
+        niceList("* Actors that already had the annotation:", already)
+        niceList("* Actors that were seen that shouldn't have the annotation:", unchanged)
         print()
 

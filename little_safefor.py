@@ -16,7 +16,7 @@
 
 import argparse
 import re
-from utils import loadRemoteTypesFile, manual
+from utils import loadRemoteTypesFile, manual, niceList
 
 
 registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\((\"[^\"]+\"|[^\"]+), {$")
@@ -59,7 +59,7 @@ ignoreFiles = set([
     "toolkit/modules/ActorManagerParent.sys.mjs",
 ])
 
-def fixLittleActorDecls(seenWeb, baseFile, fileName):
+def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
     foundAny = False
 
     currActor = None
@@ -105,12 +105,13 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
                             okayForWeb = True
                     if okayForWeb:
                         if actorAlreadySafe:
-                            print(f"ALREADY SAFEFOR: {currActor} in {justTheFile}")
+                            results["already"].append(currActor)
                         else:
-                            print(f"MATCHED: {currActor} in {justTheFile}: ==>{safeFor[:-1]}")
+                            results["fixed"].append(currActor)
+                            # TODO: Actually insert safeFor into the file.
                     else:
                         assert not actorAlreadySafe
-                        print(f"NOT WEB: {currActor} in {justTheFile}")
+                        results["notWeb"].append(currActor)
                     currActor = None
                     safeFor = None
                     endCurrActor = None
@@ -122,7 +123,7 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName):
         return
 
     assert fileName in ignoreFiles, f"Did not find any actor registrations in {fileName}"
-    print("IGNORING: " + fileName)
+    results["ignored"].append(fileName)
 
 
 if __name__ == "__main__":
@@ -149,6 +150,15 @@ if __name__ == "__main__":
             assert len(l) > 2
             files.append(l[:-1])
 
-    for f in files:
-        fixLittleActorDecls(seenWeb, firefoxDir, f)
+    results = {"already": [], "fixed": [], "notWeb": [], "ignored": []}
 
+    for f in files:
+        fixLittleActorDecls(seenWeb, firefoxDir, f, results)
+
+    niceList("* Actors that had the annotation added:", results["fixed"])
+    niceList("* Actors that already had the annotation:", results["already"])
+    niceList("* Actors that were seen that shouldn't have the annotation:", results["notWeb"])
+
+    print("Files that were skipped by the analysis:")
+    for f in sorted(results["ignored"]):
+        print(f)
