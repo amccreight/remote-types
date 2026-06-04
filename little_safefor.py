@@ -49,11 +49,10 @@ ignoreFiles = set([
     # This is the implementation used by mobile/shared/chrome/geckoview/geckoview.js,
     # which will be analyzed by big_safefor.py.
     "mobile/shared/modules/geckoview/GeckoViewActorManager.sys.mjs",
-    # This is analyzed by big_safefor.py.
-    "toolkit/modules/ActorManagerParent.sys.mjs",
 ])
 
 registerRe = re.compile("^(\\s*)ChromeUtils.register([a-zA-Z]+)Actor\\((\"[^\"]+\"|[^\"]+), {$")
+JSWAEditRe = re.compile("^(\\s*)JSWINDOWACTORS.([^ ]+) = {$")
 
 def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
     foundAny = False
@@ -69,20 +68,31 @@ def fixLittleActorDecls(seenWeb, baseFile, fileName, results):
 
     with open(actualFileName, "r") as fi, open(outFileName, "w") as fo:
         for l in fi:
+            foundActor = False
             m = registerRe.match(l)
             if m:
-                foundAny = True
                 assert currActor is None
-                assert safeFor is None
                 assert endCurrActor is None
-                actorAlreadySafe = False
-
                 indentWith = m.group(1)
-                safeFor = indentWith + "  safeForUntrustedWebProcess: true,\n"
-                endCurrActor = indentWith + "});\n"
                 kind = m.group(2)
                 assert kind == "Window" or kind == "Process"
                 currActor = m.group(3)
+                endCurrActor = indentWith + "});\n"
+                foundActor = True
+            else:
+                m = JSWAEditRe.match(l)
+                if m:
+                    assert currActor is None
+                    assert endCurrActor is None
+                    indentWith = m.group(1)
+                    currActor = '"' + m.group(2) + '"'
+                    endCurrActor = indentWith + "};\n"
+                    foundActor = True
+            if foundActor:
+                foundAny = True
+                assert safeFor is None
+                actorAlreadySafe = False
+                safeFor = indentWith + "  safeForUntrustedWebProcess: true,\n"
                 if currActor[0] == '"' and currActor[-1] == '"':
                     currActor = currActor[1:-1]
                 else:
