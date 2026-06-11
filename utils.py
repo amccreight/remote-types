@@ -31,10 +31,24 @@ manualNonWeb = [
     "MozCachedOHTTP",
     "MozNewTabRemoteRendererProtocol",
 ]
+# GeckoViewStartup.sys.mjs has a bunch of actors. I wasn't able to get logging
+# to work on Android but they look like they are all needed for web processes,
+# and I couldn't find any Android-specific actors with a remoteTypes declaration.
+manualAndroid = [
+    "GeckoViewPermissionProcess",
+    "GeckoViewPush",
+    "LoadURIDelegate",
+    "GeckoViewPermission",
+    "GeckoViewPrompt",
+    "GeckoViewFormValidation",
+    "GeckoViewPdfjs",
+]
 for a in manualWeb:
     manual[a] = True
 for a in manualNonWeb:
     manual[a] = False
+for a in manualAndroid:
+    manual[a] = True
 
 def loadRemoteTypesFile(fileName):
     seenWeb = {}

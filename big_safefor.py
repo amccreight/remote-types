@@ -12,11 +12,10 @@ from utils import loadRemoteTypesFile, niceList, manual
 # Hacky updater for the big actor registry files, to add annotations to
 # indicate that the relevant actors are used in web content processes.
 
-# TODO: Add mobile/shared/components/geckoview/GeckoViewStartup.sys.mjs
-# Need to do a logging run on Android first.
 bigActorDeclFiles = [
     "browser/components/DesktopActorRegistry.sys.mjs",
     "browser/extensions/newtab/lib/NewTabActorRegistry.sys.mjs",
+    "mobile/shared/components/geckoview/GeckoViewStartup.sys.mjs",
     "toolkit/modules/ActorManagerParent.sys.mjs",
 ]
 
