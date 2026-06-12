@@ -16,30 +16,16 @@ matchRe = re.compile("^match ([^ ]+) (.+)$")
 actors = {}
 remoteTypes = {}
 
-# These actors have added a remoteTypes since the log was taken, so fix them up.
-addedRemoteTypes = set(
-    [
-        "MozCachedOHTTP", # Bug 2039747
-        "MozNewTabRemoteRendererProtocol", # Bug 2039017
-        "ProcessConduits", # Bug 2039888
-    ])
-
-# This actor was removed by bug 2039744.
-removedActors = set(["PurgeSessionHistory"])
-
 for l in sys.stdin:
     m = initRe.match(l)
     if m:
         actor = m.group(1)
-        if actor in removedActors:
-            continue
-        hasRemoteTypes = (m.group(2) == "remoteTypes") or (actor in addedRemoteTypes)
+        hasRemoteTypes = (m.group(2) == "remoteTypes")
         actors[actor] = hasRemoteTypes
         continue
     m = matchRe.match(l)
     assert m
     actor = m.group(1)
-    assert not actor in removedActors
     remoteType = m.group(2)
     remoteTypes.setdefault(actor, set([])).add(remoteType)
 
