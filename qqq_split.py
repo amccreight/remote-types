@@ -5,6 +5,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Extract every line that contains a QQQ and echo out only the code afterwards.
+# This was needed for the old-style printf JS actor logging and is obsolete now.
 
 import sys
 
