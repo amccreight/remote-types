@@ -1,5 +1,9 @@
 Log analyzer and updater for Firefox remote types.
 
+`condense.py`: This script is run on the raw log files when MOZ_LOG
+for JSActorService has been enabled, to eliminate all of the random
+test log stuff we don't care about and all of the redundancy.
+
 Example of running `big_safefor.py`:
 
 ```
