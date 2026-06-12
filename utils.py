@@ -6,7 +6,6 @@
 
 manual = {}
 manualWeb = [
-    "AISmartBar",
     "ExtFind",
     "LayoutDebug",
     "SpeechDispatcher",
@@ -27,6 +26,7 @@ manualWeb = [
     "TestSupportProcess",
 ]
 manualNonWeb = [
+    "AISmartBar",
     "HPKEConfigManager",
     "MozCachedOHTTP",
     "MozNewTabRemoteRendererProtocol",
