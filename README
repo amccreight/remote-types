@@ -4,6 +4,9 @@ Log analyzer and updater for Firefox remote types.
 for JSActorService has been enabled, to eliminate all of the random
 test log stuff we don't care about and all of the redundancy.
 
+`rt.py`: This script performs various analyses of the condensed
+remote types log.
+
 Example of running `big_safefor.py`:
 
 ```

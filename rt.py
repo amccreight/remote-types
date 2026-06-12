@@ -10,8 +10,8 @@ import re
 # Analyze the condensed remote type logs and summarize the output in various
 # formats, including CSV.
 
-initRe = re.compile("^init (.+); ((?:no )?remoteTypes)$")
-matchRe = re.compile("^match ([^ ]+) (.+)$")
+initRe = re.compile("^I/JSActorService init ([^;]+);((?: parent;)?)((?: child;)?)((?: remoteTypes)?)$")
+matchRe = re.compile("^I/JSActorService match ([^ ]+) (.+)$")
 
 actors = {}
 remoteTypes = {}
@@ -20,8 +20,10 @@ for l in sys.stdin:
     m = initRe.match(l)
     if m:
         actor = m.group(1)
-        hasRemoteTypes = (m.group(2) == "remoteTypes")
-        actors[actor] = hasRemoteTypes
+        hasParent = len(m.group(2)) > 0
+        hasChild = len(m.group(3)) > 0
+        hasRemoteTypes = len(m.group(4)) > 0
+        actors[actor] = (hasParent, hasChild, hasRemoteTypes)
         continue
     m = matchRe.match(l)
     assert m
@@ -29,14 +31,22 @@ for l in sys.stdin:
     remoteType = m.group(2)
     remoteTypes.setdefault(actor, set([])).add(remoteType)
 
-
 neverMatchedRT = set([])
 neverMatchedNoRT = set([])
 
-for a, hasRemoteTypes in actors.items():
+def hasParent(a):
+    return actors[a][0]
+
+def hasChild(a):
+    return actors[a][1]
+
+def hasRemoteType(a):
+    return actors[a][2]
+
+for a in actors.keys():
     if a in remoteTypes:
         continue
-    if hasRemoteTypes:
+    if hasRemoteType(a):
         neverMatchedRT.add(a)
     else:
         neverMatchedNoRT.add(a)
@@ -49,14 +59,14 @@ otherNoRT = set([])
 for a, rts in remoteTypes.items():
     if "webIsolated" in rts:
         webIso.add(a)
-        assert not actors[a] or a == "TestWindow"
+        assert not hasRemoteType(a) or a == "TestWindow"
         continue
     if "web" in rts:
         web.add(a)
-        assert not actors[a] or a == "TestProcessActor"
+        assert not hasRemoteType(a) or a == "TestProcessActor"
         continue
     assert a in actors
-    if actors[a]:
+    if hasRemoteType(a):
         otherRT.add(a)
     else:
         otherNoRT.add(a)
@@ -106,7 +116,7 @@ def fullCSV():
 
     print("Sometimes web")
     for a in sorted(list(web.union(webIso))):
-        print(f"{a}, {"Y" if actors[a] else ""}, {csvRemoteTypes(rtOrder, a)}")
+        print(f"{a}, {"Y" if hasRemoteType(a) else ""}, {csvRemoteTypes(rtOrder, a)}")
 
 
 # This prints out the actors seen with web content remote types on the first line,
