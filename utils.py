@@ -26,6 +26,7 @@ manualWeb = [
     "TestSupportProcess",
 ]
 manualNonWeb = [
+    "AboutPDF",
     "AISmartBar",
     "HPKEConfigManager",
     "MozCachedOHTTP",
