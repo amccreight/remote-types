@@ -75,7 +75,7 @@ def analyzeRemoteTypes(actors, actorRemoteTypes):
     for a, rts in actorRemoteTypes.items():
         if "webIsolated" in rts:
             remoteTypeBuckets["webIsolated"].add(a)
-            assert not hasRemoteType(actors[a]) or a == "TestWindow"
+            assert not hasRemoteType(actors[a]) or a == "TestWindow" or a == "TestProcessActor"
             continue
         if "web" in rts:
             remoteTypeBuckets["web"].add(a)
