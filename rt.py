@@ -10,8 +10,8 @@ import re
 # Analyze the condensed remote type logs and summarize the output in various
 # formats, including CSV.
 
-initRe = re.compile("^I/JSActorService init ([^;]+);((?: parent;)?)((?: child;)?)((?: remoteTypes)?)$")
-matchRe = re.compile("^I/JSActorService match ([^ ]+) (.+)$")
+registeredRe = re.compile("^I/JSActorService registered [^ ]+ '([^']+)': {((?: parent,)?)((?: child,)?)((?: remoteTypes,)?) }")
+matchRe = re.compile("^I/JSActorService JSActor '([^']+)' matched remoteType '([^']+)'$")
 
 def parseFile(fileName):
     actors = {}
@@ -19,7 +19,7 @@ def parseFile(fileName):
 
     with open(fileName, "r") as fi:
         for l in fi:
-            m = initRe.match(l)
+            m = registeredRe.match(l)
             if m:
                 actor = m.group(1)
                 hasParent = len(m.group(2)) > 0
@@ -35,7 +35,7 @@ def parseFile(fileName):
 
     return [actors, actorRemoteTypes]
 
-# Helpers for actor init data.
+# Helpers for actor registration data.
 def hasParent(a):
     return a[0]
 
