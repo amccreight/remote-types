@@ -23,6 +23,7 @@ from utils import loadRemoteTypesFile, manual, niceList
 nameFixup = {
     ("browser_bug1622420.js", "ACTOR"): "Bug1622420",
     ("browser_fullscreen_api_fission.js", "actorName"): "FullscreenFrame",
+    ("browser_usercharacteristics_canvas_font.js", "ACTOR_NAME"): "UserCharacteristicsCanvasRendering",
     ("fxaccounts.sys.mjs", "AUTOFILL_ACTOR_NAME"): "TPSFxAAutofill",
     ("head_service_worker.js", "JS_ACTOR_NAME"): "TestWorkerWatcher",
     ("test_allowJavascript.js", "ACTOR"): "AllowJavascript",
