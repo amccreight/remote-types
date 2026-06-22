@@ -57,7 +57,7 @@ def fixBigActorDecls(seenWeb, fileName):
                     if seenWeb[currActorDecl]:
                         okayForWeb = True
                 else:
-                    print(f"Unknown actor: {currActorDecl}")
+                    print(f"Unknown actor: {currActorDecl} in {fileName}")
                     assert False
                 if okayForWeb:
                     if not actorAlreadySafe:

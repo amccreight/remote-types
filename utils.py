@@ -31,6 +31,7 @@ manualNonWeb = [
     "HPKEConfigManager",
     "MozCachedOHTTP",
     "MozNewTabRemoteRendererProtocol",
+    "Urlbar",
 ]
 # GeckoViewStartup.sys.mjs has a bunch of actors. I wasn't able to get logging
 # to work on Android but they look like they are all needed for web processes,
